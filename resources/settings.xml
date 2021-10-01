@@ -1,0 +1,5 @@
+<settings>
+<category label="[COLOR royalblue]Kodi Karaoke[/COLOR]">
+    <setting id="newfont" type="text" label="Font Colour" default="royalblue"/>
+</category>	   	
+</settings>
