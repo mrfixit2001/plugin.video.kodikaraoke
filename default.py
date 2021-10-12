@@ -194,27 +194,77 @@ def FirstSearchDir():
     setView('DEFAULT')
 
 
+def PlayListHandler(url):
+        TXT='https://www.youtube.com/watch?v=%s' % (url.replace(' ','+').replace("\\u0026","&"))
+        html=OPEN_URL(TXT)
+        html=html[html.find('"playlist":{"playlist"'):html.find('"currentIndex"')]
+
+        # NOTE: the current element in the loop contains the title for the NEXT element
+        link=html.split('watch?v=')
+        for i, p in enumerate(link):
+            nextLink = link[(i+1) % len(link)]
+            p=p.replace('\\"',"")
+
+            # Get the title from this element
+            name = ""
+            if '{"title":{"accessibility":{"accessibilityData":{"label":"' in p:
+                name = p.split('{"title":{"accessibility":{"accessibilityData":{"label":"')[1]
+            name = name.split('"')[0]
+            name = str(name).replace("&#39;","'").replace("&amp;","and").replace("&#252;","u").replace("&quot;","").replace("[","").replace("]","").replace("-"," ")
+
+            # Everything else from the next element
+            if ':"buy or rent"' in nextLink.lower():
+                continue
+
+            url=nextLink.split('"')[0]
+            if "\\u0026" in url:
+               url=url.split("\\u0026")[0]
+            if '&amp' in url:
+               url = url.split('&amp')[0]
+            iconimage = 'http://i.ytimg.com/vi/%s/0.jpg' % url
+            if not 'video_id' in name:
+                 if not '_title_' in name:
+                    if not 'video search' in name.lower():
+                        addLink(name,url,iconimage,'')
+
+        setView('VIDEO')
+
+
 def HtmlToResults(html):
         link=html.split('watch?v=')
-        
-        for p in link:
-            #print(p)
 
-            url=p.split('"')[0]
-            if '&amp' in url:
-                url = url.split('&amp')[0]
+        # NOTE: the current element in the loop contains the title for the NEXT element
+        for i, p in enumerate(link):
+            nextLink = link[(i+1) % len(link)]
+            p=p.replace('\\"',"")
 
+            # Get the title from this element
             name = ""
             if ',"title":{"simpleText":"' in p:
                 name = p.split(',"title":{"simpleText":"')[1]
             if ',"title":{"runs":[{"text":"' in p:
                 name = p.split(',"title":{"runs":[{"text":"')[1]
-            name = name.split('"')[0]  
+            name = name.split('"')[0]
             name = str(name).replace("&#39;","'").replace("&amp;","and").replace("&#252;","u").replace("&quot;","").replace("[","").replace("]","").replace("-"," ")
 
-            iconimage = 'http://i.ytimg.com/vi/%s/0.jpg' % url
-            if not 'video_id' in name:
-                if not '_title_' in name:
+            # Everything else from the next element
+            if ':"buy or rent"' in nextLink.lower():
+                continue
+
+            url=nextLink.split('"')[0]
+            print("URL:" + url)
+            iconimage=""
+            if "\\u0026list=" in url:
+                # Playlist
+                iconimage="DefaultFolder.png"
+                addDir(name,url,99,'DefaultFolder.png','none',1)
+            else:
+              if '&amp' in url:
+                  url = url.split('&amp')[0]
+              if iconimage=="":
+                 iconimage = 'http://i.ytimg.com/vi/%s/0.jpg' % url
+              if not 'video_id' in name:
+                 if not '_title_' in name:
                     if not 'video search' in name.lower():
                         addLink(name,url,iconimage,'')
 
@@ -873,5 +923,8 @@ elif mode ==6003:
     PlayYouTube(name,url,iconimage)
     setView('VIDEO')
     cacheList=True
+
+elif mode == 99:
+    PlayListHandler(url)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=cacheList, updateListing=updateScreen)
