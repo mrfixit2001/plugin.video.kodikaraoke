@@ -4,7 +4,7 @@
 # The original kodi karaoke used a .COM to authenticate paid services. But that .COM has since been allowed to expire.
 
 # Import required libraries
-import urllib,urllib3,re,sys,xbmcplugin,xbmcgui,xbmcaddon,xbmc,os,requests,string
+import urllib,urllib3,re,sys,xbmcplugin,xbmcgui,xbmcaddon,xbmc,xbmcvfs,os,requests,string
 
 
 # Define all our methods and functions
@@ -22,11 +22,11 @@ import urllib,urllib3,re,sys,xbmcplugin,xbmcgui,xbmcaddon,xbmc,os,requests,strin
 #    return datetime.datetime.fromtimestamp(time.mktime(time.strptime(dateString.encode('utf-8', 'replace'), "%Y-%m-%d %H:%M:%S")))
 #def getday():
 #    today = datetime.datetime.today()
-#    return today.strftime("%A")  
+#    return today.strftime("%A")
 #def getYday():
 #    from datetime import timedelta
 #    today = datetime.datetime.today()-timedelta(hours=24)
-#    return today.strftime("%A") 
+#    return today.strftime("%A")
 
 
 # NOT USED - Only called in sunfly methods
@@ -65,7 +65,7 @@ def GRABBER(type,mode,item):
 # NOT USED
 def KaraokeSource(url):
     tagNAME='Kodi Karoke Folder'; tagURL=url;
-    path=os.path.join(xbmc.translatePath('special://home'),'userdata','sources.xml')
+    path=os.path.join(xbmcvfs.translatePath('special://home'),'userdata','sources.xml')
     if not os.path.exists(path): f=open(path,mode='w'); f.write('<sources><files><source><name>'+tagNAME+'</name><path pathversion="1">'+tagURL+'</path></source></files></sources>'); f.close();
     f=open(path,mode='r'); str=f.read(); f.close()
     if not tagURL in str:
@@ -93,7 +93,7 @@ def ProKaraoke(url):
 #def download_DB():
 #    import downloader
 #    dp = xbmcgui.DialogProgress()
-#    db_dir = xbmc.translatePath(os.path.join(ADDON.getAddonInfo('path'),'Karaoke.db'))
+#    db_dir = xbmcvfs.translatePath(os.path.join(ADDON.getAddonInfo('path'),'Karaoke.db'))
 #    dp.create("Kodi Karaoke","",'Building Database Please Wait', ' ')
 #    downloader.download(K_db, db_dir,dp)
 
@@ -128,7 +128,7 @@ def OPEN_URL(url):
 
     response.close()
     return link
-	
+
 
 # MAIN MENU
 def MAINMENU(url):
@@ -157,7 +157,7 @@ def FAVORITES(switch,name,iconimage,url):
         iconimage=iconimage.replace(' ','%20')
 
     IMAGE = os.path.join(ADDON.getAddonInfo('path'), 'icon.png')
-   
+
     db = database.connect( db_dir );cur = db.cursor()
     if switch == 'add':
         sql = "INSERT OR REPLACE INTO favourites (track_name,iconimage,url) VALUES(?,?,?)"
@@ -344,14 +344,14 @@ def ARTIST_SONG_INDEX(url, name):
 def TRACK_INDEX(url, iconimage):
         link=OPEN_URL(url.replace(' ','%20'))
         match = re.compile('<li><span>.+?href=.+?title="(.+?)">.+?> - <.+?>(.+?)</a>').findall(link)
-        uniques = []        
+        uniques = []
         for name, url, in match:
-                name = str(name).replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","")  
-                url = str(url).replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","") 
+                name = str(name).replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","")
+                url = str(url).replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","")
                 name = name+ '   ('+ url+')'
                 if not '</a>' in name:
                     if name not in uniques:
-                        uniques.append(name)      
+                        uniques.append(name)
                         addDir(name,url,9,iconimage,art+'Main/Fanart_T.jpg',1)
 
 
@@ -360,7 +360,7 @@ def GENRE(url):
         link=OPEN_URL(url + 'genre')
         match=re.compile('class="thumb_img">.+?<img src="(.+?)".+?href="(.+?)">(.+?)</a>',re.DOTALL).findall(link)
         for iconimage, url, name in match:
-            addDir(name,url+'?dir=asc&limit=500',10,iconimage,art+'Main/Fanart_G.jpg',1) 
+            addDir(name,url+'?dir=asc&limit=500',10,iconimage,art+'Main/Fanart_G.jpg',1)
 
 
 # MODE 32 - SUNFLY Genre List (NOT USED)
@@ -368,7 +368,7 @@ def GENRESF(url):
         link=OPEN_URL('http://www.sunflykaraoke.com/genre')
         match=re.compile('class="thumb_img">.+?<img src="(.+?)".+?href="(.+?)">(.+?)</a>',re.DOTALL).findall(link)
         for iconimage,url,name in match:
-            addDir(name,url+'?dir=asc&limit=200&order=latestalbums',33,iconimage,art+'Main/Fanart_G.jpg',1) 
+            addDir(name,url+'?dir=asc&limit=200&order=latestalbums',33,iconimage,art+'Main/Fanart_G.jpg',1)
 
 
 # MODE 10 - list of songs in the selected genre
@@ -395,44 +395,44 @@ def GENRE_INDEXSF(name,url, iconimage):
         for name, url, in match:
             passto = re.sub('[\(\)\{\}<>]', '', name.replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","").replace("&quot;",""))
             name = re.sub('[\(\)\{\}<>]', '', name.replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","").replace("&quot;","").replace("'",""))
-            url = str(url).replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","") 
+            url = str(url).replace("&#39;","'") .replace("&amp;","and") .replace("&#252;","u") .replace("&quot;","")
             name = name#+ '   ('+ url+')'
             if not '</a>' in name:
                 if name not in uniques:
-                    uniques.append(name)      
+                    uniques.append(name)
 
                     addDir('[COLOR '+newfont+']'+'%s[/COLOR] - %s'%(passto,url),name,34,iconimage,art+'Main/Fanart_G.jpg',1)
 
 
 # MODE 34 - SUNFLY actual list of sources (not used)
 def SEARCH_GENRE(url,name):
-    passit = False 
+    passit = False
     db=GRABBER(4,'track',re.sub('\A(a|A|the|THE|The|)\s','',url))
     if not db: addLinkSF('[COLOR red]TRACK NOT AVAILABLE.[/COLOR]',url,'');return
     for sf,number,artist,track,icon,burl in db:
         if 'ft' in artist.lower() or 'feat' in artist.lower():
             passit = True
-        if passit == False:   
+        if passit == False:
             if artist.lower() in name.split('-')[1].lower().strip():
                 addLinkSF('[COLOR '+newfont+']'+'%s ~ [/COLOR]%s'%(artist,track),burl,icon,split=1)
         else:
             if name.split('-')[1].lower().strip():
-                addLinkSF('[COLOR '+newfont+']'+'%s ~ [/COLOR]%s'%(artist,track),burl,icon,split=1)            
+                addLinkSF('[COLOR '+newfont+']'+'%s ~ [/COLOR]%s'%(artist,track),burl,icon,split=1)
 
 
 # MODE 6 - the actual list of songs by artist
 def ARTIST_SONG_SEARCH(name, url, iconimage, fanart):
-        url = str(url).replace(' ','+').replace('_','+')  
-        name = str(name).replace(' ','+') 
-        url = 'https://www.youtube.com/results?search_query=%s+%s+karaoke&hl=en-GB&page=' % (name, url) 
+        url = str(url).replace(' ','+').replace('_','+')
+        name = str(name).replace(' ','+')
+        url = 'https://www.youtube.com/results?search_query=%s+%s+karaoke&hl=en-GB&page=' % (name, url)
         html=OPEN_URL(url)
         HtmlToResults(html)
 
 
-# MODE 9 - actual list of songs by genre index or track index 
+# MODE 9 - actual list of songs by genre index or track index
 def TRACK_SEARCH(name, url, fanart):
         name = str(name).replace('   (','+') .replace(' ','+') .replace(')','')
-        url = 'https://www.youtube.com/results?search_query=%s+karaoke&hl=en-GB&page=' % (name) 
+        url = 'https://www.youtube.com/results?search_query=%s+karaoke&hl=en-GB&page=' % (name)
         #print url
         html=OPEN_URL(url)
         HtmlToResults(html)
@@ -470,11 +470,11 @@ def Sunflysearch(search_entered):
             if not db: addLinkSF('[COLOR red]TRACK NOT AVAILABLE.[/COLOR]',url,'');return
             for sf,number,artist,track,icon,burl in db:
                 addLinkSF('[COLOR '+newfont+']'+'%s ~ [/COLOR]%s'%(artist,track),burl,icon)
-         
+
             if not search_entered in favs:
                 favs.append(search_entered)
                 ADDON.setSetting('favs', ','.join(favs))
-    
+
     else:
         db=GRABBER(4,'artist',search_entered)
         if not db: db=GRABBER(4,'artist',re.sub('\A(a|A|the|THE|The)\s','',search_entered))
@@ -510,7 +510,7 @@ def AZ_TRACK_SEARCH(name):
     db=GRABBER(5,'track',re.sub('\A(a|A|the|THE|The)\s','',name))
     if not db: addLinkSF('[COLOR red]TRACK NOT AVAILABLE.[/COLOR]',url,'');return
     for sf,number,artist,track,icon,burl in db:
-            addLinkSF('[COLOR '+newfont+']'+'%s ~ [/COLOR]%s'%(track,artist),burl,icon,split=0)    
+            addLinkSF('[COLOR '+newfont+']'+'%s ~ [/COLOR]%s'%(track,artist),burl,icon,split=0)
 
 
 def addFile(file):
@@ -533,9 +533,9 @@ def addFile(file):
 
 # (not used)
 def addFileSF(file):
-        file = xbmc.translatePath(file) 
+        file = xbmcvfs.translatePath(file)
         iconimage = file.replace('.avi','.jpg').replace('.mp4','.jpg')
-        name = file.replace(xbmc.translatePath(sfdownloads),'').replace('.avi','').replace('.mp4','')
+        name = file.replace(xbmcvfs.translatePath(sfdownloads),'').replace('.avi','').replace('.mp4','')
         url=file
         liz=xbmcgui.ListItem(name, offscreen=True)
         liz.setArt({'icon':'DefaultVideo.png'})
@@ -547,7 +547,7 @@ def addFileSF(file):
         liz.addContextMenuItems(contextMenu,replaceItems=True)
         xbmcplugin.addDirectoryItem(handle = int(sys.argv[1]), url=url,listitem = liz, isFolder = False)
 
-        
+
 # (not used)
 def deleteFileSF(file,iconimage):
     tries    = 0
@@ -566,11 +566,11 @@ def deleteFileSF(file,iconimage):
         except:
             xbmc.sleep(500)
             tries = tries + 1
-            
-            
+
+
     if os.path.exists(file):
         d = xbmcgui.Dialog()
-        d.ok('Kodi Karaoke', 'Failed to delete file')         
+        d.ok('Kodi Karaoke', 'Failed to delete file')
 
 
 def addDir(name,url,mode,iconimage,fanart,number):
@@ -627,7 +627,7 @@ def addLink(name,url,iconimage,fanart,showcontext=True):
                   menu.append(('[COLOR green]Add[/COLOR] to Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'add')))
           else:
               menu.append(('[COLOR red]Remove[/COLOR] from Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
-						  
+
     liz.addContextMenuItems(items=menu, replaceItems=False)
     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
 
@@ -636,9 +636,9 @@ def addLink(name,url,iconimage,fanart,showcontext=True):
 def addLinkSF(name,url,iconimage,showcontext=True,split=None):
         if 'http' in Kfolder:
             url=url.replace(' ','%20')
-        iconimage = xbmc.translatePath(os.path.join(Kfolder,url)).replace('.mp4','.jpg').replace('.avi','.jpg')
-        
-        url = xbmc.translatePath(os.path.join(Kfolder,url))
+        iconimage = xbmcvfs.translatePath(os.path.join(Kfolder,url)).replace('.mp4','.jpg').replace('.avi','.jpg')
+
+        url = xbmcvfs.translatePath(os.path.join(Kfolder,url))
 
         liz=xbmcgui.ListItem(name, offscreen=True)
         liz.setArt({'icon':'DefaultVideo.png'})
@@ -646,13 +646,13 @@ def addLinkSF(name,url,iconimage,showcontext=True,split=None):
         liz.setInfo( type="Video", infoLabels={ "Title": name})
         liz.setProperty('mimetype', 'video/x-msvideo')
         liz.setProperty("IsPlayable","true")
-            
+
         menu = []
         if showcontext:
             menu.append(('[COLOR green]Add[/COLOR] to Kodi Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'add')))
             menu.append(('[COLOR red]Remove[/COLOR] Kodi Karaoke from Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
         if ADDON.getSetting('sfenable') == 'true':
-            menu.append(('[COLOR orange]Download[/COLOR]', 'Container.Update(%s?&mode=30&url=%s&name=%s&iconimage=%s&split=%s)' %(sys.argv[0],url,name,iconimage,split)))  
+            menu.append(('[COLOR orange]Download[/COLOR]', 'Container.Update(%s?&mode=30&url=%s&name=%s&iconimage=%s&split=%s)' %(sys.argv[0],url,name,iconimage,split)))
         liz.addContextMenuItems(items=menu, replaceItems=False)
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz,isFolder=False)
         xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
@@ -692,7 +692,7 @@ def get_params():
                         splitparams=pairsofparams[i].split('=')
                         if (len(splitparams))==2:
                                 param[splitparams[0]]=splitparams[1]
-                                
+
         return param
 
 
@@ -705,14 +705,14 @@ updateScreen=False
 cacheList=False
 
 ADDON = xbmcaddon.Addon(id='plugin.video.kodikaraoke')
-sfdownloads= xbmc.translatePath(os.path.join(ADDON.getSetting('sfdownloads'),''))
-db_dir = os.path.join(xbmc.translatePath("special://database"), 'Karaoke.db')
+sfdownloads= xbmcvfs.translatePath(os.path.join(ADDON.getSetting('sfdownloads'),''))
+db_dir = os.path.join(xbmcvfs.translatePath("special://database"), 'Karaoke.db')
 
-datapath = xbmc.translatePath(ADDON.getAddonInfo('profile'))
+datapath = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 newfont=ADDON.getSetting('newfont').lower()
 
 if os.path.exists(datapath)==False:
-    os.mkdir(datapath) 
+    os.mkdir(datapath)
 #if ADDON.getSetting('sfenable') == True:
 #    os.makedirs(sfdownloads)
 #if ADDON.getSetting('visitor_ga')=='':
@@ -751,19 +751,19 @@ try:
         switch=urllib.parse.unquote_plus(params["switch"])
 except:
         switch='display'
-try:        
+try:
         mode=int(params["mode"])
 except:
         pass
-try:        
+try:
         fanart=urllib.parse.unquote_plus(params["fanart"])
 except:
         pass
-try:        
+try:
         number=int(params["number"])
 except:
         pass
-try:        
+try:
         split=int(params["split"])
 except:
         pass
@@ -806,7 +806,7 @@ elif mode==3:
        cacheList=True
 
 elif mode==4:
-    ARTIST_INDEX(url, iconimage, name) 
+    ARTIST_INDEX(url, iconimage, name)
     setView('DEFAULT')
     cacheList=True
 
@@ -861,11 +861,11 @@ elif mode==24:
     AZ_TRACK_SEARCH(name)
 
 elif mode==25:
-    SF_SEARCH(name) 
+    SF_SEARCH(name)
 
 elif mode==26:
     print("")
-    LATEST_LIST(url)    
+    LATEST_LIST(url)
 
 elif mode==27:
     addSF_Favorite(name,url,iconimage)
@@ -880,7 +880,7 @@ elif mode==31:
     SFDOWNLOADS(sfdownloads)
 
 elif mode==32:
-    GENRESF(url)   
+    GENRESF(url)
 
 elif mode==33:
     GENRE_INDEXSF(name,url, iconimage)
