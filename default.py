@@ -112,7 +112,7 @@ def ProKaraoke(url):
 
 def OPEN_URL(url):
     req = urllib.request.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36')
     try:
        response = urllib.request.urlopen(req)
     except:
@@ -221,6 +221,7 @@ def PlayListHandler(url):
                url=url.split("\\u0026")[0]
             if '&amp' in url:
                url = url.split('&amp')[0]
+
             iconimage = 'http://i.ytimg.com/vi/%s/0.jpg' % url
             if not 'video_id' in name:
                  if not '_title_' in name:
@@ -252,7 +253,7 @@ def HtmlToResults(html):
                 continue
 
             url=nextLink.split('"')[0]
-            print("URL:" + url)
+
             iconimage=""
             if "\\u0026list=" in url:
                 # Playlist
@@ -261,8 +262,13 @@ def HtmlToResults(html):
             else:
               if '&amp' in url:
                   url = url.split('&amp')[0]
+              if '\\u0026' in url:
+                  url = url.split('\\u0026')[0]
               if iconimage=="":
                  iconimage = 'http://i.ytimg.com/vi/%s/0.jpg' % url
+
+              #xbmc.log(msg="DEBUG: " + name + ": " + iconimage, level=xbmc.LOGINFO)
+
               if not 'video_id' in name:
                  if not '_title_' in name:
                     if not 'video search' in name.lower():
@@ -659,7 +665,7 @@ def addLinkSF(name,url,iconimage,showcontext=True,split=None):
 
 
 def PlayYouTube(name,url,iconimage):
-    youtube='plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=%s'% url
+    youtube='plugin://plugin.video.youtube/play/?video_id=%s'% url
     liz = xbmcgui.ListItem(name, offscreen=True)
     liz.setArt({'icon':'DefaultVideo.png'})
     liz.setArt({'thumb':iconimage})
