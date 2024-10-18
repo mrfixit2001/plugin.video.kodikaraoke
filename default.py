@@ -665,13 +665,24 @@ def addLinkSF(name,url,iconimage,showcontext=True,split=None):
 
 
 def PlayYouTube(name,url,iconimage):
-    youtube='plugin://plugin.video.youtube/play/?video_id=%s'% url
+    url = 'https://www.youtube.com/watch?v=%s'% url
+    print("Kodi Karaoke Playing: " + url)
+
     liz = xbmcgui.ListItem(name, offscreen=True)
     liz.setArt({'icon':'DefaultVideo.png'})
     liz.setArt({'thumb':iconimage})
     liz.setInfo(type='Video', infoLabels={'Title':name})
     liz.setProperty("IsPlayable","true")
-    liz.setPath(str(youtube))
+
+    ytAddon = ADDON.getSetting('youtube_player').lower()    
+    if ytAddon == "youtube addon":
+        youtube='plugin://plugin.video.youtube/play/?video_id=%s'% url
+        liz.setPath(str(youtube))
+    else:
+        from youtubedl import YDStreamExtractor
+        vid = YDStreamExtractor.getVideoInfo(url)
+        liz.setPath(vid.streamURL())
+    
     xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, liz)
 
 

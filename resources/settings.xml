@@ -1,5 +1,7 @@
 <settings>
 <category label="[COLOR royalblue]Kodi Karaoke[/COLOR]">
     <setting id="newfont" type="text" label="Font Colour" default="royalblue"/>
+    <setting id="video_quality" type="select" label="Video Quality" values="SD|720p|1080p|Max" default="1080p" />
+    <setting id="youtube_player" type="select" label="YouTube Player" values="Internal|YouTube Addon" default="Internal" />
 </category>	   	
 </settings>

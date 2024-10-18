@@ -1,5 +1,5 @@
 Kodi Karaoke FREE
-Version 1.0.2
+Version 1.0.4
 Notes by MRFIXIT2001
 
 The original Kodi Karaoke addon seems to be abandoned - it didn't work with Matrix (v19) and the .com expired.
