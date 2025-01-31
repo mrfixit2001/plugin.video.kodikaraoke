@@ -4,8 +4,7 @@
 # The original kodi karaoke used a .COM to authenticate paid services. But that .COM has since been allowed to expire.
 
 # Import required libraries
-import urllib,urllib3,re,sys,xbmcplugin,xbmcgui,xbmcaddon,xbmc,xbmcvfs,os,requests,string
-
+import urllib,urllib.parse,urllib.request,re,sys,xbmcplugin,xbmcgui,xbmcaddon,xbmc,xbmcvfs,os,string
 
 # Define all our methods and functions
 
@@ -674,7 +673,7 @@ def PlayYouTube(name,url,iconimage):
     liz.setInfo(type='Video', infoLabels={'Title':name})
     liz.setProperty("IsPlayable","true")
 
-    ytAddon = ADDON.getSetting('youtube_player').lower()    
+    ytAddon = ADDON.getSetting('youtube_player').lower()
     if ytAddon == "youtube addon":
         youtube='plugin://plugin.video.youtube/play/?video_id=%s'% url
         liz.setPath(str(youtube))
@@ -682,7 +681,7 @@ def PlayYouTube(name,url,iconimage):
         from youtubedl import YDStreamExtractor
         vid = YDStreamExtractor.getVideoInfo(url)
         liz.setPath(vid.streamURL())
-    
+
     xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, liz)
 
 
