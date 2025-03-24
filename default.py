@@ -6,6 +6,12 @@
 # Import required libraries
 import urllib,urllib.parse,urllib.request,re,sys,xbmcplugin,xbmcgui,xbmcaddon,xbmc,xbmcvfs,os,string
 
+kodi_version = xbmc.getInfoLabel('System.BuildVersion')
+try:
+    kodi_version = int(kodi_version.split(".")[0])
+except (ValueError, IndexError):
+    kodi_version = 0  # Default to 0 if something goes wrong
+
 # Define all our methods and functions
 
 # NOT USED
@@ -527,7 +533,13 @@ def addFile(file):
         liz=xbmcgui.ListItem(name, offscreen=True)
         liz.setArt({'icon':'DefaultVideo.png'})
         liz.setArt({'thumb':iconimage})
-        liz.setInfo( type="Video", infoLabels={ "Title": name})
+
+        if kodi_version < 20:
+            liz.setInfo( type="Video", infoLabels={ "Title": name } )
+        else:
+            tags = liz.getVideoInfoTag()
+            tags.setTitle(name)
+
         liz.setProperty("IsPlayable","true")
         liz = xbmcgui.ListItem(name, offscreen=True)
         contextMenu = []
@@ -545,7 +557,13 @@ def addFileSF(file):
         liz=xbmcgui.ListItem(name, offscreen=True)
         liz.setArt({'icon':'DefaultVideo.png'})
         liz.setArt({'thumb':iconimage})
-        liz.setInfo( type="Video", infoLabels={ "Title": name})
+
+        if kodi_version < 20:
+            liz.setInfo( type="Video", infoLabels={ "Title": name } )
+        else:
+            tags = liz.getVideoInfoTag()
+            tags.setTitle(name)
+
         liz.setProperty("IsPlayable","true")
         contextMenu = []
         contextMenu.append(('Delete', 'RunPlugin(%s?mode=102&url=%s&iconimage=%s)'% (sys.argv[0], file,iconimage)))
@@ -579,27 +597,33 @@ def deleteFileSF(file,iconimage):
 
 
 def addDir(name,url,mode,iconimage,fanart,number):
-        u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)+"&iconimage="+urllib.parse.quote_plus(iconimage)+"&fanart="+urllib.parse.quote_plus(fanart)+"&number="+str(number)
-        name = ''.join([x for x in name if x in string.printable])
-        if name.replace(" ","") == "":
-            return
-        liz=xbmcgui.ListItem(name, offscreen=True)
-        liz.setArt({'icon':'DefaultFolder.png'})
-        liz.setArt({'thumb':iconimage})
-        liz.setArt({'fanart':fanart})
+    u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)+"&iconimage="+urllib.parse.quote_plus(iconimage)+"&fanart="+urllib.parse.quote_plus(fanart)+"&number="+str(number)
+    name = ''.join([x for x in name if x in string.printable])
+    if name.replace(" ","") == "":
+        return
+    liz=xbmcgui.ListItem(name, offscreen=True)
+    liz.setArt({'icon':'DefaultFolder.png'})
+    liz.setArt({'thumb':iconimage})
+    liz.setArt({'fanart':fanart})
+
+    if kodi_version < 20:
         liz.setInfo( type="Video", infoLabels={ "Title": name } )
-        menu=[]
-        if (mode == 3 or mode==16) and url!='url' :
-            menu.append(('[COLOR orange]Remove Search[/COLOR]','Container.Update(%s?mode=5002&name=%s&url=url)'% (sys.argv[0],name)))
-            liz.addContextMenuItems(items=menu, replaceItems=False)
-        if (mode == 2000)or mode==103 or mode==203:
-            if mode ==203:
-                liz.setProperty("IsPlayable","true")
-            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz, isFolder=False)
-        else:
-            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz, isFolder=True)
-        if not mode==1 and mode==20 and mode==19:
-            xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
+    else:
+        tags = liz.getVideoInfoTag()
+        tags.setTitle(name)
+
+    menu=[]
+    if (mode == 3 or mode==16) and url!='url' :
+        menu.append(('[COLOR orange]Remove Search[/COLOR]','Container.Update(%s?mode=5002&name=%s&url=url)'% (sys.argv[0],name)))
+        liz.addContextMenuItems(items=menu, replaceItems=False)
+    if (mode == 2000)or mode==103 or mode==203:
+        if mode ==203:
+            liz.setProperty("IsPlayable","true")
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz, isFolder=False)
+    else:
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz, isFolder=True)
+    if not mode==1 and mode==20 and mode==19:
+        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
 
 
 def addLink(name,url,iconimage,fanart,showcontext=True):
@@ -612,26 +636,32 @@ def addLink(name,url,iconimage,fanart,showcontext=True):
     liz.setArt({'icon':'DefaultVideo.png'})
     liz.setArt({'thumb':iconimage})
     liz.setArt({'fanart':fanart})
-    liz.setInfo( type="Video", infoLabels={ "Title": name } )
+
+    if kodi_version < 20:
+        liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    else:
+        tags = liz.getVideoInfoTag()
+        tags.setTitle(name)
+
     liz.setProperty("IsPlayable","true")
     menu = []
     if showcontext:
-          if mode!=2:
-              found=False
-              db = database.connect( db_dir );cur = db.cursor()
-              cur.execute("SELECT * FROM favourites")
-              cached = cur.fetchall()
-              if cached:
-                  for fname,artist,track,ficonimage,furl in cached:
-                     if url == furl:
-                          found=True
-                          menu.append(('[COLOR red]Remove[/COLOR] from Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
-                          break
-              db.close()
-              if not found:
-                  menu.append(('[COLOR green]Add[/COLOR] to Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'add')))
-          else:
-              menu.append(('[COLOR red]Remove[/COLOR] from Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
+            if mode!=2:
+                found=False
+                db = database.connect( db_dir );cur = db.cursor()
+                cur.execute("SELECT * FROM favourites")
+                cached = cur.fetchall()
+                if cached:
+                    for fname,artist,track,ficonimage,furl in cached:
+                        if url == furl:
+                            found=True
+                            menu.append(('[COLOR red]Remove[/COLOR] from Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
+                            break
+                db.close()
+                if not found:
+                    menu.append(('[COLOR green]Add[/COLOR] to Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'add')))
+            else:
+                menu.append(('[COLOR red]Remove[/COLOR] from Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
 
     liz.addContextMenuItems(items=menu, replaceItems=False)
     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
@@ -639,28 +669,34 @@ def addLink(name,url,iconimage,fanart,showcontext=True):
 
 # SUNFLY Links (not used)
 def addLinkSF(name,url,iconimage,showcontext=True,split=None):
-        if 'http' in Kfolder:
-            url=url.replace(' ','%20')
-        iconimage = xbmcvfs.translatePath(os.path.join(Kfolder,url)).replace('.mp4','.jpg').replace('.avi','.jpg')
+    if 'http' in Kfolder:
+        url=url.replace(' ','%20')
+    iconimage = xbmcvfs.translatePath(os.path.join(Kfolder,url)).replace('.mp4','.jpg').replace('.avi','.jpg')
 
-        url = xbmcvfs.translatePath(os.path.join(Kfolder,url))
+    url = xbmcvfs.translatePath(os.path.join(Kfolder,url))
 
-        liz=xbmcgui.ListItem(name, offscreen=True)
-        liz.setArt({'icon':'DefaultVideo.png'})
-        liz.setArt({'thumb':iconimage})
-        liz.setInfo( type="Video", infoLabels={ "Title": name})
-        liz.setProperty('mimetype', 'video/x-msvideo')
-        liz.setProperty("IsPlayable","true")
+    liz=xbmcgui.ListItem(name, offscreen=True)
+    liz.setArt({'icon':'DefaultVideo.png'})
+    liz.setArt({'thumb':iconimage})
 
-        menu = []
-        if showcontext:
-            menu.append(('[COLOR green]Add[/COLOR] to Kodi Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'add')))
-            menu.append(('[COLOR red]Remove[/COLOR] Kodi Karaoke from Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
-        if ADDON.getSetting('sfenable') == 'true':
-            menu.append(('[COLOR orange]Download[/COLOR]', 'Container.Update(%s?&mode=30&url=%s&name=%s&iconimage=%s&split=%s)' %(sys.argv[0],url,name,iconimage,split)))
-        liz.addContextMenuItems(items=menu, replaceItems=False)
-        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz,isFolder=False)
-        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
+    if kodi_version < 20:
+        liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    else:
+        tags = liz.getVideoInfoTag()
+        tags.setTitle(name)
+
+    liz.setProperty('mimetype', 'video/x-msvideo')
+    liz.setProperty("IsPlayable","true")
+
+    menu = []
+    if showcontext:
+        menu.append(('[COLOR green]Add[/COLOR] to Kodi Karaoke Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'add')))
+        menu.append(('[COLOR red]Remove[/COLOR] Kodi Karaoke from Favorites','RunPlugin(%s?mode=2&iconimage=%s&url=%s&name=%s&switch=%s)' %(sys.argv[0],iconimage,url,name,'delete')))
+    if ADDON.getSetting('sfenable') == 'true':
+        menu.append(('[COLOR orange]Download[/COLOR]', 'Container.Update(%s?&mode=30&url=%s&name=%s&iconimage=%s&split=%s)' %(sys.argv[0],url,name,iconimage,split)))
+    liz.addContextMenuItems(items=menu, replaceItems=False)
+    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz,isFolder=False)
+    xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
 
 
 def PlayYouTube(name,url,iconimage):
@@ -670,17 +706,33 @@ def PlayYouTube(name,url,iconimage):
     liz = xbmcgui.ListItem(name, offscreen=True)
     liz.setArt({'icon':'DefaultVideo.png'})
     liz.setArt({'thumb':iconimage})
-    liz.setInfo(type='Video', infoLabels={'Title':name})
-    liz.setProperty("IsPlayable","true")
+
+    if kodi_version < 20:
+        liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    else:
+        tags = liz.getVideoInfoTag()
+        tags.setTitle(name)
 
     ytAddon = ADDON.getSetting('youtube_player').lower()
     if ytAddon == "youtube addon":
         youtube='plugin://plugin.video.youtube/play/?video_id=%s'% url
         liz.setPath(str(youtube))
     else:
-        from youtubedl import YDStreamExtractor
-        vid = YDStreamExtractor.getVideoInfo(url)
-        liz.setPath(vid.streamURL())
+        import yt_dlp as youtube_dl
+        streamURL = ""
+        try:
+            with youtube_dl.YoutubeDL({'format':'best', 'ignore_no_formats_error':'true'}) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if 'url' in info:
+                    streamURL = info['url']
+        except Exception as e:
+            print("DEBUG: YoutubeDL ERROR:", str(e))
+
+        if streamURL == "":
+            xbmc.executebuiltin('Notification('+name+',Failed to Play,2000,' + os.path.join(ADDON.getAddonInfo('path'), 'icon.png') + ')')
+        else:
+            liz.setProperty("IsPlayable","true")
+            liz.setPath(streamURL)
 
     xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, liz)
 
