@@ -26,7 +26,6 @@ from .youtube import (  # Youtube is moved to the top to improve performance
 )
 
 # isort: on
-
 from .commonmistakes import (
     BlobIE,
     CommonMistakesIE,
@@ -37,4 +36,5 @@ from .commonprotocols import (
     RtmpIE,
     ViewSourceIE,
 )
+
 from .generic import GenericIE
