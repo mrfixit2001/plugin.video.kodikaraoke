@@ -1,31 +1,4 @@
 # flake8: noqa: F401
-# isort: off
-
-from .youtube import (  # Youtube is moved to the top to improve performance
-    YoutubeIE,
-    YoutubeClipIE,
-    YoutubeFavouritesIE,
-    YoutubeNotificationsIE,
-    YoutubeHistoryIE,
-    YoutubeTabIE,
-    YoutubeLivestreamEmbedIE,
-    YoutubePlaylistIE,
-    YoutubeRecommendedIE,
-    YoutubeSearchDateIE,
-    YoutubeSearchIE,
-    YoutubeSearchURLIE,
-    YoutubeMusicSearchURLIE,
-    YoutubeSubscriptionsIE,
-    YoutubeTruncatedIDIE,
-    YoutubeTruncatedURLIE,
-    YoutubeYtBeIE,
-    YoutubeYtUserIE,
-    YoutubeWatchLaterIE,
-    YoutubeShortsAudioPivotIE,
-    YoutubeConsentRedirectIE,
-)
-
-# isort: on
 from .commonmistakes import (
     BlobIE,
     CommonMistakesIE,
@@ -36,5 +9,27 @@ from .commonprotocols import (
     RtmpIE,
     ViewSourceIE,
 )
-
 from .generic import GenericIE
+from .youtube import (
+    YoutubeClipIE,
+    YoutubeConsentRedirectIE,
+    YoutubeFavouritesIE,
+    YoutubeHistoryIE,
+    YoutubeIE,
+    YoutubeLivestreamEmbedIE,
+    YoutubeMusicSearchURLIE,
+    YoutubeNotificationsIE,
+    YoutubePlaylistIE,
+    YoutubeRecommendedIE,
+    YoutubeSearchDateIE,
+    YoutubeSearchIE,
+    YoutubeSearchURLIE,
+    YoutubeShortsAudioPivotIE,
+    YoutubeSubscriptionsIE,
+    YoutubeTabIE,
+    YoutubeTruncatedIDIE,
+    YoutubeTruncatedURLIE,
+    YoutubeWatchLaterIE,
+    YoutubeYtBeIE,
+    YoutubeYtUserIE,
+)
